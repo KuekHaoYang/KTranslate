@@ -10,10 +10,6 @@ export default function ConfigModal() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [modelInputMode, setModelInputMode] = useState<'dropdown' | 'text'>('dropdown');
 
-  useEffect(() => {
-    console.log('ConfigModal mounted, isConfigModalOpen:', isConfigModalOpen);
-  }, [isConfigModalOpen]);
-
   // Load saved modelInputMode on mount
   useEffect(() => {
     const saved = localStorage.getItem('modelInputMode');
@@ -27,12 +23,7 @@ export default function ConfigModal() {
     localStorage.setItem('modelInputMode', modelInputMode);
   }, [modelInputMode]);
 
-  if (!isConfigModalOpen) {
-    console.log('ConfigModal returning null because isConfigModalOpen is false');
-    return null;
-  }
-
-  console.log('ConfigModal rendering content');
+  if (!isConfigModalOpen) return null;
 
   const modelOptions = SERVICE_MODELS[config.service as ServiceType];
 
@@ -44,21 +35,21 @@ export default function ConfigModal() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="bg-[var(--card-bg)] rounded-2xl p-6 w-full max-w-lg border border-[var(--border-color)] shadow-lg max-h-[90vh] overflow-y-auto"
+            className="bg-[var(--card-bg)] rounded-2xl p-6 w-full max-w-lg border border-[var(--border-color)] shadow-lg"
           >
-            <div className="flex justify-between items-center mb-6 sticky top-0 bg-[var(--card-bg)] pt-1">
-              <h2 className="text-xl font-semibold">API Configuration</h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold">API Configuration</h2>
               <button
                 onClick={() => setIsConfigModalOpen(false)}
-                className="p-2 hover:bg-[var(--hover-bg)] rounded-xl transition-colors"
+                className="p-2 hover:bg-[var(--hover-bg)] rounded-lg transition-colors"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <div className="space-y-4 overflow-y-auto">
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Translation Service</label>
                 <Dropdown
@@ -77,12 +68,12 @@ export default function ConfigModal() {
                     value={config.apiKey}
                     onChange={(e) => updateConfig({ apiKey: e.target.value })}
                     placeholder="Enter your API key"
-                    className="w-full px-4 pr-12 py-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-[var(--card-shadow)]"
+                    className="w-full px-4 py-2.5 rounded-xl bg-[var(--card-bg)] border border-[var(--border-color)] focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-[var(--card-shadow)]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowApiKey(!showApiKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-xl hover:bg-[var(--hover-bg)] transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-[var(--hover-bg)] transition-colors"
                   >
                     {showApiKey ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-[var(--foreground)]/60">
@@ -157,7 +148,7 @@ export default function ConfigModal() {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setIsConfigModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+                className="px-4 py-2 rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors"
               >
                 Done
               </button>
