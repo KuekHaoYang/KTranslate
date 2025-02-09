@@ -1,5 +1,5 @@
 import { APIConfig } from '@/context/APIConfigContext';
-import { translateWithDeepl, translateWithDeeplStream } from './deeplService';
+import { translateWithDeepl } from './deeplService';
 
 export async function translateText(
   text: string,
@@ -51,7 +51,9 @@ export async function translateTextStream(
   signal?: AbortSignal
 ): Promise<void> {
   if (config.service === 'deepl') {
-    return translateWithDeeplStream(text, to, from, onChunk, signal);
+    const translation = await translateWithDeepl(text, to, from);
+    onChunk(translation);
+    return;
   }
 
   const systemPrompt = 'You are a professional, authentic machine translation engine.';
