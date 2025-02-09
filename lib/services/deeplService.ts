@@ -1,5 +1,3 @@
-import { APIConfig } from '@/context/APIConfigContext';
-
 export async function translateWithDeepl(
   text: string,
   targetLang: string,
