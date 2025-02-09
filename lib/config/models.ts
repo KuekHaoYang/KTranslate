@@ -5,7 +5,8 @@ export interface DropdownOption {
 
 export const TRANSLATION_SERVICES: DropdownOption[] = [
   { value: 'openai', label: 'OpenAI' },
-  { value: 'groq', label: 'Groq' }
+  { value: 'groq', label: 'Groq' },
+  { value: 'deepl', label: 'DeepL' }
 ];
 
 export const SERVICE_MODELS: Record<string, DropdownOption[]> = {

@@ -1,4 +1,5 @@
 import { APIConfig } from '@/context/APIConfigContext';
+import { translateWithDeepl, translateWithDeeplStream } from './deeplService';
 
 export async function translateText(
   text: string,
@@ -6,6 +7,10 @@ export async function translateText(
   from: string | 'auto-detect',
   config: APIConfig
 ): Promise<string> {
+  if (config.service === 'deepl') {
+    return translateWithDeepl(text, to, from);
+  }
+
   const systemPrompt = 'You are a professional, authentic machine translation engine.';
   const userPrompt = from === 'auto-detect'
     ? `;; Treat next line as plain text input and translate it into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`
@@ -45,6 +50,10 @@ export async function translateTextStream(
   onChunk: (chunk: string) => void,
   signal?: AbortSignal
 ): Promise<void> {
+  if (config.service === 'deepl') {
+    return translateWithDeeplStream(text, to, from, onChunk, signal);
+  }
+
   const systemPrompt = 'You are a professional, authentic machine translation engine.';
   const userPrompt = from === 'auto-detect'
     ? `;; Treat next line as plain text input and translate it into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`

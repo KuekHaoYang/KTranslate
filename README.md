@@ -9,6 +9,18 @@ Fast and accurate translations for everyone, powered by modern AI models.
 
 KTranslate is a modern web application that provides fast, accurate translations powered by state-of-the-art AI models. With its sleek interface and powerful features, it makes translating text between multiple languages effortless and efficient.
 
+## 📋 Table of Contents
+- [✨ Features](#-features)
+- [🚀 Getting Started](#-getting-started)
+- [🛠️ Technology Stack](#️-technology-stack)
+- [🎨 Features in Detail](#-features-in-detail)
+- [🤝 Contributing](#-contributing)
+- [📝 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [📞 Support](#-support)
+- [📱 Screenshots](#-screenshots)
+- [🔄 Changelog](#-changelog)
+
 ## ✨ Features
 
 - 🤖 Advanced AI-powered translations
@@ -27,6 +39,18 @@ KTranslate is a modern web application that provides fast, accurate translations
 
 - Node.js 18.0 or higher
 - npm, yarn, or pnpm
+
+### Environment Setup
+
+1. Copy the example environment file:
+```bash
+cp .env.example .env
+```
+
+2. Configure your environment variables in the `.env` file:
+```env
+NEXT_PUBLIC_DEEPLX_API=your_api_key_here
+```
 
 ### Installation
 
@@ -106,11 +130,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Next.js team for the amazing framework
 - Vercel for hosting and deployment
-- All contributors who have helped shape this project
-
-## 📞 Support
-
-If you have any questions or need help, please:
-- Open an issue in the GitHub repository
-- Contact the maintainers
-- Join our community discussions
