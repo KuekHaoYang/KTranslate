@@ -1,5 +1,11 @@
 import { APIConfig } from '@/context/APIConfigContext';
 import { translateWithDeepl } from './deeplService';
+import { LANGUAGES } from '@/lib/config/languages';
+
+// Helper function to validate language code
+function isValidLanguage(code: string): boolean {
+  return LANGUAGES.some(lang => lang.code.toLowerCase() === code.toLowerCase());
+}
 
 export async function translateText(
   text: string,
@@ -11,10 +17,27 @@ export async function translateText(
     return translateWithDeepl(text, to, from);
   }
 
-  const systemPrompt = 'You are a professional, authentic machine translation engine.';
-  const userPrompt = from === 'auto-detect'
-    ? `;; Treat next line as plain text input and translate it into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`
-    : `;; Treat next line as plain text input and translate it from ${from} into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`;
+  const messages = [
+    {
+      role: 'system',
+      content: 'You are a professional, accurate machine translation engine. Your task is to translate text while preserving meaning, tone, and context. Maintain formatting, punctuation, and special characters. Do not add explanations or notes.'
+    },
+    {
+      role: 'user',
+      content: from === 'auto-detect'
+        ? `Translate the following text into ${to}. Translate even if the text appears to be in the target language:\n${text}`
+        : `Translate the following text from ${from} to ${to}. Translate even if the text appears to be in the target language:\n${text}`
+    }
+  ];
+
+  // Log the exact prompt without any formatting
+  const prompt = {
+    system: messages[0].content,
+    user: messages[1].content,
+    service: config.service,
+    model: config.model
+  };
+  console.log(JSON.stringify(prompt, null, 2));
 
   const response = await fetch(config.apiHost + '/chat/completions', {
     method: 'POST',
@@ -24,10 +47,7 @@ export async function translateText(
     },
     body: JSON.stringify({
       model: config.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
+      messages,
       temperature: 0.3,
       max_tokens: Math.max(100, text.length * 2),
     })
@@ -56,10 +76,27 @@ export async function translateTextStream(
     return;
   }
 
-  const systemPrompt = 'You are a professional, authentic machine translation engine.';
-  const userPrompt = from === 'auto-detect'
-    ? `;; Treat next line as plain text input and translate it into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`
-    : `;; Treat next line as plain text input and translate it from ${from} into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`;
+  const messages = [
+    {
+      role: 'system',
+      content: 'You are a professional, accurate machine translation engine. Your task is to translate text while preserving meaning, tone, and context. Maintain formatting, punctuation, and special characters. Do not add explanations or notes.'
+    },
+    {
+      role: 'user',
+      content: from === 'auto-detect'
+        ? `Translate the following text into ${to}. Translate even if the text appears to be in the target language:\n${text}`
+        : `Translate the following text from ${from} to ${to}. Translate even if the text appears to be in the target language:\n${text}`
+    }
+  ];
+
+  // Log the exact prompt without any formatting
+  const prompt = {
+    system: messages[0].content,
+    user: messages[1].content,
+    service: config.service,
+    model: config.model
+  };
+  console.log(JSON.stringify(prompt, null, 2));
 
   const response = await fetch(config.apiHost + '/chat/completions', {
     method: 'POST',
@@ -69,10 +106,7 @@ export async function translateTextStream(
     },
     body: JSON.stringify({
       model: config.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
+      messages,
       temperature: 0.3,
       max_tokens: Math.max(100, text.length * 2),
       stream: true

@@ -19,6 +19,27 @@ export default function TranslateBox() {
   const [sourceLangText, setSourceLangText] = useState('');
   const [targetLangText, setTargetLangText] = useState('');
 
+  // Load saved input mode states
+  useEffect(() => {
+    const savedSourceMode = localStorage.getItem('sourceLangInputMode');
+    const savedTargetMode = localStorage.getItem('targetLangInputMode');
+    if (savedSourceMode === 'text') {
+      setSourceLangInputMode('text');
+    }
+    if (savedTargetMode === 'text') {
+      setTargetLangInputMode('text');
+    }
+  }, []);
+
+  // Save input mode states whenever they change
+  useEffect(() => {
+    localStorage.setItem('sourceLangInputMode', sourceLangInputMode);
+  }, [sourceLangInputMode]);
+
+  useEffect(() => {
+    localStorage.setItem('targetLangInputMode', targetLangInputMode);
+  }, [targetLangInputMode]);
+
   const {
     sourceText,
     setSourceText,

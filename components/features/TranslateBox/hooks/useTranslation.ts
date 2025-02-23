@@ -17,8 +17,8 @@ export function useTranslation() {
   const handleTranslate = useCallback(async () => {
     const trimmedText = sourceText.trim();
     
-    // Check API key first
-    if (!config.apiKey) {
+    // Check API key only for OpenAI and Groq
+    if (config.service !== 'deepl' && !config.apiKey) {
       setError('🔑 Please configure your API key in settings to start translating');
       setTranslatedText('⚙️ Click the settings icon in the top right corner to set up your API key');
       return;
@@ -38,6 +38,10 @@ export function useTranslation() {
       return;
     }
 
+    // Ensure language codes are normalized
+    const normalizedSourceLang = sourceLang.toLowerCase();
+    const normalizedTargetLang = targetLang.toLowerCase();
+
     setTranslateState('loading');
     setError(null);
     setTranslatedText('🔄 Translating...');
@@ -49,8 +53,8 @@ export function useTranslation() {
     try {
       await translateTextStream(
         trimmedText,
-        targetLang,
-        sourceLang,
+        normalizedTargetLang,
+        normalizedSourceLang,
         config,
         (chunk) => {
           currentTranslationRef.current += chunk;

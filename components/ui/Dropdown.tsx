@@ -26,6 +26,7 @@ export default function Dropdown({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,6 +38,12 @@ export default function Dropdown({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleScroll = (e: Event) => {
@@ -145,6 +152,7 @@ export default function Dropdown({
               <div className="px-2 py-1.5">
                 <div className="relative">
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
