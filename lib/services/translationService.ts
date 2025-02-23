@@ -73,13 +73,13 @@ export async function translateTextStream(
   const messages = [
     {
       role: 'system',
-      content: 'You are a professional, accurate machine translation engine. Your task is to translate text while preserving meaning, tone, and context. Maintain formatting, punctuation, and special characters. Do not add explanations or notes.'
+      content: 'You are a professional, authentic machine translation engine.'
     },
     {
       role: 'user',
       content: from === 'auto-detect'
-        ? `Translate the following text into ${to}. Translate even if the text appears to be in the target language:\n${text}`
-        : `Translate the following text from ${from} to ${to}. Translate even if the text appears to be in the target language:\n${text}`
+        ? `;; Treat next line as plain text input and translate it into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`
+        : `;; Treat next line as plain text input and translate it from ${from} into ${to}, output translation ONLY. If translation is unnecessary (e.g. proper nouns, codes, etc.), return the original text. NO explanations. NO notes. Input:\n${text}`
     }
   ];
 
