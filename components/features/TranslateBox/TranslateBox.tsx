@@ -105,10 +105,20 @@ export default function TranslateBox() {
 
   const detectLanguageFromText = (text: string): LanguageCode | undefined => {
     const normalizedText = text.toLowerCase().trim();
-    return LANGUAGES.find(lang => 
-      lang.name.toLowerCase().includes(normalizedText) || 
-      lang.code.toLowerCase().includes(normalizedText)
-    )?.code;
+    
+    // First try to match with predefined languages
+    const predefinedLang = LANGUAGES.find(lang => 
+      lang.name.toLowerCase() === normalizedText || 
+      lang.code.toLowerCase() === normalizedText
+    );
+
+    if (predefinedLang) {
+      return predefinedLang.code;
+    }
+
+    // If no predefined match found, return the input text as is
+    // This will be used directly in the translation prompt
+    return normalizedText || undefined;
   };
 
   return (

@@ -1,6 +1,7 @@
 export interface Language {
   code: string;
   name: string;
+  isCustom?: boolean;
 }
 
 export const LANGUAGES: Language[] = [
@@ -25,4 +26,4 @@ export const LANGUAGES: Language[] = [
   { code: 'vi', name: 'Vietnamese' }
 ];
 
-export type LanguageCode = typeof LANGUAGES[number]['code']; 
+export type LanguageCode = string; 
