@@ -1,11 +1,5 @@
 import { APIConfig } from '@/context/APIConfigContext';
 import { translateWithDeepl } from './deeplService';
-import { LANGUAGES } from '@/lib/config/languages';
-
-// Helper function to validate language code
-function isValidLanguage(code: string): boolean {
-  return LANGUAGES.some(lang => lang.code.toLowerCase() === code.toLowerCase());
-}
 
 export async function translateText(
   text: string,

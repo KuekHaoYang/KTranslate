@@ -5,27 +5,6 @@ import { IconButton } from './IconButton';
 import { LANGUAGES } from '@/lib/config/languages';
 import { useAPIConfig } from '@/context/APIConfigContext';
 
-// Helper function to find the closest matching language
-function findClosestLanguage(input: string): LanguageCode | undefined {
-  const normalizedInput = input.trim().toLowerCase();
-  
-  // First try exact match with code or name
-  const exactMatch = LANGUAGES.find(lang => 
-    lang.code.toLowerCase() === normalizedInput ||
-    lang.name.toLowerCase() === normalizedInput
-  );
-  if (exactMatch) return exactMatch.code;
-
-  // Then try partial match with name
-  const partialMatch = LANGUAGES.find(lang =>
-    lang.name.toLowerCase().includes(normalizedInput) ||
-    normalizedInput.includes(lang.name.toLowerCase())
-  );
-  if (partialMatch) return partialMatch.code;
-
-  return undefined;
-}
-
 interface LanguageSectionProps {
   isSource: boolean;
   lang: LanguageCode;
@@ -70,8 +49,14 @@ export function LanguageSection({
 
   const handleLanguageInput = (input: string) => {
     setLangText(input);
-    // Pass through the language text directly as is
-    setLang(input as LanguageCode);
+    if (inputMode === 'text') {
+      const detectedLang = detectLanguageFromText(input);
+      if (detectedLang) {
+        setLang(detectedLang);
+      }
+    } else {
+      setLang(input as LanguageCode);
+    }
   };
 
   const handleInputModeSwitch = () => {
