@@ -65,33 +65,60 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     }
   });
   
+  const filteredOptions = useMemo(() => {
+    if (!searchTerm && !showSearch) return options;
+    if (!showSearch && searchTerm) { // Typeahead logic for non-search selects
+        return options.filter(option => 
+            option.label.toLowerCase().startsWith(searchTerm.toLowerCase())
+        );
+    }
+    const term = searchTerm.toLowerCase();
+    return options.filter(option =>
+      option.label.toLowerCase().includes(term)
+    );
+  }, [options, searchTerm, showSearch]);
+
+  // Effect to manage dropdown visibility, animation, and initial activeIndex
   useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
       setAnimationClass("animate-dropdownOpen");
-      if (showSearch && searchInputRef.current) {
-        searchInputRef.current.focus();
+      
+      // Set initial active index based on current value and filtered options.
+      // When opening, searchTerm should be "", so filteredOptions are effectively `options`.
+      let initialActiveIndex = -1;
+      if (filteredOptions.length > 0) {
+        const idx = filteredOptions.findIndex(opt => opt.value === value);
+        initialActiveIndex = (idx !== -1) ? idx : 0; // Default to first if value not found or not set
       }
-      const selectedIndex = filteredOptions.findIndex(opt => opt.value === value);
-      setActiveIndex(selectedIndex === -1 ? 0 : selectedIndex);
+      setActiveIndex(initialActiveIndex);
     } else {
-      // If isOpen becomes false, start closing animation
-      if (shouldRender) { // Only if it was actually rendered
+      // Start closing animation if dropdown was rendered
+      if (shouldRender) {
         setAnimationClass("animate-dropdownClose");
-      } else { // If it wasn't rendered, ensure search term is cleared
+      } else {
+        // If not rendered, ensure state is reset (e.g., search term)
         setSearchTerm("");
         setActiveIndex(-1);
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, showSearch, value]); // Dependencies kept minimal for this effect
+  }, [isOpen, value, options]); // `options` is included in case it changes while closed/opening.
+                                // `filteredOptions` updates if `options` or `searchTerm` changes.
+
+  // Effect to focus search input *after* the dropdown is rendered and open
+  useEffect(() => {
+    if (isOpen && shouldRender && showSearch && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isOpen, shouldRender, showSearch]);
 
 
   const handleAnimationEnd = () => {
     if (animationClass === "animate-dropdownClose") {
       setShouldRender(false);
-      setSearchTerm("");
-      setActiveIndex(-1);
+      setSearchTerm(""); // Clear search term when dropdown is fully closed
+      setActiveIndex(-1); // Reset active index
     }
   };
 
@@ -110,22 +137,19 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     }
   }, [activeIndex, shouldRender, scrollToActiveOption]);
 
-  const filteredOptions = useMemo(() => {
-    if (!searchTerm && !showSearch) return options; // Keep this logic for typeahead
-    if (!showSearch && searchTerm) { // Typeahead logic for non-search selects
-        return options.filter(option => 
-            option.label.toLowerCase().startsWith(searchTerm.toLowerCase())
-        );
-    }
-    const term = searchTerm.toLowerCase();
-    return options.filter(option =>
-      option.label.toLowerCase().includes(term)
-    );
-  }, [options, searchTerm, showSearch]);
 
+  // Effect to manage activeIndex bounds and reset if filteredOptions become empty
   useEffect(() => {
-    if (shouldRender && activeIndex >= filteredOptions.length) {
-      setActiveIndex(Math.max(0, filteredOptions.length - 1));
+    if (shouldRender) {
+      if (filteredOptions.length === 0) {
+        if (activeIndex !== -1) setActiveIndex(-1);
+      } else if (activeIndex >= filteredOptions.length) {
+        setActiveIndex(filteredOptions.length - 1);
+      } else if (activeIndex < 0 && filteredOptions.length > 0) {
+        // If activeIndex is -1 but there are options (e.g. after search clears), set to 0.
+        // This is mainly for keyboard navigation to have a starting point.
+        // setActiveIndex(0); // Consider if this is always desired. The search input's onChange handles initial activeIndex on search.
+      }
     }
   }, [filteredOptions, activeIndex, shouldRender]);
 
@@ -148,6 +172,10 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 
     switch (e.key) {
       case "Enter":
+      case " ": // Treat space like Enter for selection if not in search input
+        if (e.key === " " && document.activeElement === searchInputRef.current) {
+          return; // Allow space in search input
+        }
         e.preventDefault();
         if (isOpen && shouldRender) {
           if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
@@ -155,18 +183,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
           }
         } else {
           setIsOpen(true);
-        }
-        break;
-      case " ":
-        if (document.activeElement !== searchInputRef.current) {
-          e.preventDefault();
-          if (isOpen && shouldRender) {
-            if (activeIndex >= 0 && activeIndex < filteredOptions.length) {
-              handleSelect(filteredOptions[activeIndex].value);
-            }
-          } else {
-            setIsOpen(true);
-          }
         }
         break;
       case "Escape":
@@ -192,6 +208,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         if (isOpen && !showSearch && document.activeElement !== searchInputRef.current && e.key.length === 1 && e.key.match(/[a-zA-Z0-9]/i)) {
           const newSearchTerm = searchTerm + e.key;
           setSearchTerm(newSearchTerm);
+          // Update activeIndex based on typeahead
           const newActiveIndex = options.findIndex(opt => opt.label.toLowerCase().startsWith(newSearchTerm.toLowerCase()));
           setActiveIndex(newActiveIndex !== -1 ? newActiveIndex : (filteredOptions.length > 0 ? 0 : -1) );
         }
@@ -199,12 +216,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
     }
   };
   
+  // Effect for typeahead: clear search term after a delay if not using dedicated search input
   useEffect(() => {
-    let timer: number; // Changed from NodeJS.Timeout to number
+    let timer: number; 
     if (isOpen && !showSearch && searchTerm) {
-      timer = window.setTimeout(() => setSearchTerm(""), 800); // Use window.setTimeout for clarity
+      timer = window.setTimeout(() => setSearchTerm(""), 800);
     }
-    return () => window.clearTimeout(timer); // Use window.clearTimeout for clarity
+    return () => window.clearTimeout(timer);
   }, [searchTerm, isOpen, showSearch]);
 
   const getAriaLabelledBy = () => {
@@ -219,7 +237,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         className={`relative ${className} w-full`}
         onKeyDown={handleKeyDown}
     >
-      {label && ( // Only render label if provided as a prop (internal label scenario)
+      {label && (
         <label id={id ? `${id}-label` : undefined} htmlFor={id || undefined} className="block text-xs font-medium text-lightSubtleText dark:text-darkSubtleText mb-1.5 transition-colors duration-250">
           {label}
         </label>
@@ -227,14 +245,14 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
       <button
         ref={buttonRef}
         type="button"
-        id={id} // This id is used by external label's htmlFor if mainId is not set, or is the button's own ID.
+        id={id} 
         onClick={handleToggle}
         disabled={disabled}
         className="relative appearance-none w-full bg-lightInputBg dark:bg-darkInputBg border border-lightBorder dark:border-darkBorder text-lightText dark:text-darkText py-2.5 pl-3.5 pr-10 rounded-xl shadow-subtle focus:outline-none focus-visible:border-2 focus-visible:border-primary dark:focus-visible:border-primary-light transition-all duration-250 disabled:opacity-60 disabled:cursor-not-allowed text-sm flex items-center text-left active:scale-98"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-labelledby={getAriaLabelledBy()}
-        aria-label={ariaLabel || (!label && !mainId ? placeholder : undefined)} // Provide aria-label if no other label association
+        aria-label={ariaLabel || (!label && !mainId ? placeholder : undefined)} 
         aria-controls={shouldRender ? `${id}-listbox` : undefined}
         aria-activedescendant={shouldRender && activeIndex >=0 && filteredOptions[activeIndex] ? `${id}-option-${filteredOptions[activeIndex].value}` : undefined}
         tabIndex={disabled ? -1 : 0}
@@ -265,11 +283,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 value={searchTerm}
                 onChange={(e) => {
                     setSearchTerm(e.target.value);
-                    setActiveIndex(e.target.value ? 0 : (options.findIndex(opt => opt.value === value) ?? 0));
+                    // When user types in search, set activeIndex to 0 if there are results.
+                    // The useEffect for activeIndex bounds will correct to -1 if search yields no results.
+                    setActiveIndex(0); 
                 }}
                 placeholder="Search..."
                 className="w-full py-2 px-3 pr-9 bg-lightBg dark:bg-darkBg border border-lightBorder dark:border-darkBorder rounded-lg text-sm text-lightText dark:text-darkText focus:outline-none focus:border-primary dark:focus:border-primary-light transition-colors duration-250"
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()} // Prevent closing dropdown when clicking search input
                 aria-label="Search options"
                 aria-autocomplete="list"
                 aria-controls={`${id}-listbox`}
@@ -280,7 +300,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     onClick={() => {
                         setSearchTerm("");
                         searchInputRef.current?.focus();
-                        setActiveIndex(options.findIndex(opt => opt.value === value) ?? 0);
+                        // Reset activeIndex based on current value when search is cleared
+                        const idx = options.findIndex(opt => opt.value === value);
+                        setActiveIndex(idx !== -1 ? idx : (options.length > 0 ? 0 : -1));
                     }}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 text-lightSubtleText dark:text-darkSubtleText hover:text-lightText dark:hover:text-darkText rounded-full focus:outline-none focus:bg-black/5 dark:focus:bg-white/5"
                     aria-label="Clear search"
@@ -298,7 +320,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                   id={`${id}-option-${option.value}`}
                   role="option"
                   aria-selected={option.value === value}
-                  aria-disabled={disabled}
+                  // aria-disabled={disabled} // Individual options are not disabled; whole select is.
                   className={`mx-1 px-2.5 py-2 text-sm cursor-pointer rounded-lg transition-colors duration-100 
                     ${ option.value === value 
                         ? 'bg-primary/15 text-primary dark:bg-primary-dark/25 dark:text-primary-light font-medium'
