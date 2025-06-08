@@ -200,11 +200,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   };
   
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: number; // Changed from NodeJS.Timeout to number
     if (isOpen && !showSearch && searchTerm) {
-      timer = setTimeout(() => setSearchTerm(""), 800);
+      timer = window.setTimeout(() => setSearchTerm(""), 800); // Use window.setTimeout for clarity
     }
-    return () => clearTimeout(timer);
+    return () => window.clearTimeout(timer); // Use window.clearTimeout for clarity
   }, [searchTerm, isOpen, showSearch]);
 
   const getAriaLabelledBy = () => {

@@ -31,6 +31,7 @@ const App: React.FC = () => {
   const [showApiKeyWarning, setShowApiKeyWarning] = useState<boolean>(false);
   const [selectedModeId, setSelectedModeId] = useState<string>(DEFAULT_TRANSLATION_MODE_ID);
   const [selectedStyleId, setSelectedStyleId] = useState<string>(DEFAULT_TRANSLATION_STYLE_ID);
+  const [isIconAnimating, setIsIconAnimating] = useState<boolean>(false); // Added for swap icon animation
 
   const [historyItems, addHistoryItem, removeHistoryItem, clearAllHistory] = useTranslationHistory();
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState<boolean>(false);
@@ -82,6 +83,9 @@ const App: React.FC = () => {
 
   const handleSwapLanguages = useCallback(() => {
     if (isLoading) return;
+
+    setIsIconAnimating(true); // Start animation
+
     const currentInput = inputText;
     const currentOutput = outputText;
     
@@ -89,12 +93,11 @@ const App: React.FC = () => {
     let newTargetLang = sourceLang;
 
     if (newTargetLang === AUTO_DETECT_LANG_CODE) {
-      if (newSourceLang !== DEFAULT_SOURCE_LANG_CODE) { // if newSourceLang is not auto (which it can't be as it's from targetLang)
-        newTargetLang = DEFAULT_SOURCE_LANG_CODE; // Default to auto, or specific like 'en'
-      } else { // This case should ideally not happen if targetLang cannot be auto
+      if (newSourceLang !== DEFAULT_SOURCE_LANG_CODE) { 
+        newTargetLang = DEFAULT_SOURCE_LANG_CODE; 
+      } else { 
         newTargetLang = DEFAULT_TARGET_LANG_CODE; 
       }
-      // Ensure target is not same as source if source is not auto
       if (newTargetLang === newSourceLang && newSourceLang !== AUTO_DETECT_LANG_CODE) { 
           const fallbackTarget = SUPPORTED_LANGUAGES.find(l => l.code !== newSourceLang && l.code !== AUTO_DETECT_LANG_CODE);
           if (fallbackTarget) {
@@ -102,8 +105,7 @@ const App: React.FC = () => {
           } else if (SUPPORTED_LANGUAGES.length > 0 && SUPPORTED_LANGUAGES[0].code !== AUTO_DETECT_LANG_CODE && SUPPORTED_LANGUAGES[0].code !== newSourceLang) {
              newTargetLang = SUPPORTED_LANGUAGES.find(l => l.code !== AUTO_DETECT_LANG_CODE && l.code !== newSourceLang)?.code || SUPPORTED_LANGUAGES[0].code;
           } else {
-            // This is a tricky state, implies very few languages and one of them is newSourceLang
-            newTargetLang = DEFAULT_TARGET_LANG_CODE; // Fallback to overall default
+            newTargetLang = DEFAULT_TARGET_LANG_CODE; 
           }
       }
     }
@@ -117,6 +119,11 @@ const App: React.FC = () => {
     } else {
          setOutputText(currentInput); 
     }
+
+    setTimeout(() => {
+      setIsIconAnimating(false); // End animation after 400ms
+    }, 400);
+
   }, [sourceLang, targetLang, inputText, outputText, isLoading]);
 
   const handleClearInput = useCallback(() => {
@@ -169,7 +176,7 @@ const App: React.FC = () => {
         selectedStyleId={selectedStyleId}
         onStyleChange={setSelectedStyleId}
         isTranslationLoading={isLoading}
-        onToggleHistoryPanel={toggleHistoryPanel} // Pass handler
+        onToggleHistoryPanel={toggleHistoryPanel} 
       />
       
       {showApiKeyWarning && (
@@ -205,7 +212,7 @@ const App: React.FC = () => {
               className="h-11 w-11 flex items-center justify-center p-0 bg-lightCard dark:bg-darkCard rounded-full shadow-card hover:bg-lightInputBg dark:hover:bg-darkInputBg text-primary dark:text-primary-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-3 focus-visible:ring-light dark:focus-visible:ring-dark focus-visible:ring-offset-2 focus-visible:ring-offset-lightBg dark:focus-visible:ring-offset-darkBg"
               aria-label="Swap languages and text"
             >
-              <SwapIcon className="w-5 h-5" />
+              <SwapIcon className={`w-5 h-5 ${isIconAnimating ? 'animate-rotate-swap' : ''}`} />
             </button>
             
             <button
