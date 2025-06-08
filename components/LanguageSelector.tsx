@@ -5,14 +5,14 @@ import { CustomSelect, CustomSelectOption } from './CustomSelect';
 import { PencilIcon } from './icons/PencilIcon';
 import { CheckIcon } from './icons/CheckIcon';
 import { XMarkIcon } from './icons/XMarkIcon';
-import { AUTO_DETECT_LANG_CODE } from '../constants'; // Import AUTO_DETECT_LANG_CODE
+import { AUTO_DETECT_LANG_CODE } from '../constants';
 
 interface LanguageSelectorProps {
   languages: Language[];
   selectedLanguage: string;
   onChange: (langCodeOrName: string) => void;
-  mainId?: string; // ID for the main interactive element (CustomSelect/input) to be labelled by an external label
-  label?: string | null; // Keep for potential direct label usage, but primarily expect external labelling
+  mainId?: string; 
+  label?: string | null; 
   disabled?: boolean;
   className?: string;
 }
@@ -21,8 +21,8 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   languages,
   selectedLanguage,
   onChange,
-  mainId, // Used by CustomSelect/input for aria-labelledby
-  label,  // Null if externally labelled
+  mainId, 
+  label,  
   disabled = false,
   className = "",
 }) => {
@@ -37,7 +37,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   }));
 
   const getLanguageName = (codeOrName: string) => {
-    const lang = languages.find(l => l.code === codeOrName || l.name === codeOrName); // Also check by name for custom inputs
+    const lang = languages.find(l => l.code === codeOrName || l.name === codeOrName); 
     return lang ? lang.name : codeOrName;
   };
   
@@ -46,12 +46,11 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       const isKnownCode = languages.some(lang => lang.code === selectedLanguage);
       
       if (selectedLanguage === AUTO_DETECT_LANG_CODE) {
-        setIsCustomInputMode(false); // Always exit custom mode if "Auto-detect" is selected
+        setIsCustomInputMode(false); 
       } else if (!isKnownCode && selectedLanguage) {
         setIsCustomInputMode(true);
         setCustomInputValue(selectedLanguage);
       } else {
-        // If it's a known code (not auto-detect) and we are in custom mode, exit.
         if (isCustomInputMode) {
           setIsCustomInputMode(false);
         }
@@ -62,7 +61,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
 
   const handleToggleCustomInput = () => {
-    if (disabled || selectedLanguage === AUTO_DETECT_LANG_CODE) return; // Prevent toggle if auto-detect
+    if (disabled || selectedLanguage === AUTO_DETECT_LANG_CODE) return; 
     
     if (!isCustomInputMode) {
       setCustomInputValue(getLanguageName(selectedLanguage));
@@ -80,8 +79,6 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   const handleCancelCustomInput = () => {
     setIsCustomInputMode(false);
-    // When cancelling, reset input to the name of the currently selected language code,
-    // or if the selectedLanguage is a custom name not in codes, keep that name.
     setCustomInputValue(getLanguageName(selectedLanguage)); 
   };
 
@@ -89,8 +86,15 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
     setCustomInputValue(e.target.value);
   };
   
+  const isAutoDetectSelected = selectedLanguage === AUTO_DETECT_LANG_CODE;
+  
+  // Dynamic width for the button container
+  // For Save/Cancel (isCustomInputMode = true): 78px = 4.875rem
+  // For Pencil (isCustomInputMode = false): 38px = 2.375rem (18px icon + 2 * 10px padding for p-2.5 button)
+  const buttonContainerDynamicWidthClass = isCustomInputMode ? "w-[4.875rem]" : "w-[2.375rem]";
+
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex items-center ${className} ${!isAutoDetectSelected ? 'gap-2' : ''}`}>
       <div className={`flex-grow relative`}>
         <div
           className={`transition-all duration-300 ease-in-out w-full 
@@ -109,7 +113,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               onChange(val);
               prevSelectedLanguageRef.current = val; 
               if (isCustomInputMode && val !== AUTO_DETECT_LANG_CODE) setIsCustomInputMode(false);
-              if (val === AUTO_DETECT_LANG_CODE) setIsCustomInputMode(false); // Ensure custom mode closes
+              if (val === AUTO_DETECT_LANG_CODE) setIsCustomInputMode(false); 
             }}
             disabled={disabled}
             showSearch={true}
@@ -138,38 +142,40 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         </div>
       </div>
       
-      <div className="flex-shrink-0 h-11 flex items-center">
-        {selectedLanguage !== AUTO_DETECT_LANG_CODE && !isCustomInputMode && ( // Hide pencil if auto-detect is selected
-          <button
-            onClick={handleToggleCustomInput}
-            disabled={disabled}
-            className="p-2.5 rounded-xl text-lightSubtleText dark:text-darkSubtleText hover:bg-lightInputBg dark:hover:bg-darkInputBg hover:text-lightText dark:hover:text-darkText disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-light dark:focus-visible:ring-dark active:scale-95 animate-fadeIn"
-            aria-label="Enter custom language"
-          >
-            <PencilIcon className="w-4.5 h-4.5" />
-          </button>
-        )}
-        {isCustomInputMode && ( // This block will not show if selectedLanguage is AUTO_DETECT as isCustomInputMode will be false
-          <div className="flex items-center gap-1.5 animate-fadeIn">
+      {!isAutoDetectSelected && (
+        <div className={`flex-shrink-0 h-11 flex items-center justify-end ${buttonContainerDynamicWidthClass} transition-all duration-200`}>
+          {!isCustomInputMode && ( 
             <button
-              onClick={handleSaveCustomInput}
-              disabled={disabled || !customInputValue.trim()}
-              className="p-2 rounded-lg text-green-600 dark:text-green-500 hover:bg-green-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 active:scale-95"
-              aria-label="Save custom language"
-            >
-              <CheckIcon className="w-5 h-5" />
-            </button>
-            <button
-              onClick={handleCancelCustomInput}
+              onClick={handleToggleCustomInput}
               disabled={disabled}
-              className="p-2 rounded-lg text-red-600 dark:text-red-500 hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-95"
-              aria-label="Cancel custom language input"
+              className="p-2.5 rounded-xl text-lightSubtleText dark:text-darkSubtleText hover:bg-lightInputBg dark:hover:bg-darkInputBg hover:text-lightText dark:hover:text-darkText disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-light dark:focus-visible:ring-dark active:scale-95 animate-fadeIn"
+              aria-label="Enter custom language"
             >
-              <XMarkIcon className="w-5 h-5" />
+              <PencilIcon className="w-4.5 h-4.5" />
             </button>
-          </div>
-        )}
-      </div>
+          )}
+          {isCustomInputMode && ( 
+            <div className="flex items-center gap-1.5 animate-fadeIn">
+              <button
+                onClick={handleSaveCustomInput}
+                disabled={disabled || !customInputValue.trim()}
+                className="p-2 rounded-lg text-green-600 dark:text-green-500 hover:bg-green-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 active:scale-95"
+                aria-label="Save custom language"
+              >
+                <CheckIcon className="w-5 h-5" />
+              </button>
+              <button
+                onClick={handleCancelCustomInput}
+                disabled={disabled}
+                className="p-2 rounded-lg text-red-600 dark:text-red-500 hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 active:scale-95"
+                aria-label="Cancel custom language input"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
