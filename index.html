@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KTranslate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: [
+                'system-ui',
+                '-apple-system',
+                'BlinkMacSystemFont',
+                '"Segoe UI"',
+                'Roboto',
+                '"Helvetica Neue"',
+                'Arial',
+                '"Noto Sans"',
+                'sans-serif',
+                '"Apple Color Emoji"',
+                '"Segoe UI Emoji"',
+                '"Segoe UI Symbol"',
+                '"Noto Color Emoji"',
+              ],
+            },
+            colors: {
+              primary: { 
+                DEFAULT: 'hsl(212, 75%, 58%)', 
+                light: 'hsl(212, 75%, 68%)', // Lighter shade for dark theme text/icons
+                dark: 'hsl(212, 75%, 50%)',
+              },
+              accent: { 
+                DEFAULT: 'hsl(180, 60%, 45%)', 
+                light: 'hsl(180, 60%, 55%)',
+                dark: 'hsl(180, 60%, 38%)',
+              },
+              lightBg: 'hsl(0, 0%, 97%)',      
+              lightCard: 'hsl(0, 0%, 100%)',    
+              lightText: 'hsl(210, 15%, 25%)',   
+              lightSubtleText: 'hsl(210, 15%, 55%)',
+              lightBorder: 'hsl(210, 25%, 90%)',  
+              lightInputBg: 'hsl(210, 30%, 96%)', 
+
+              darkBg: 'hsl(220, 18%, 8%)',      
+              darkCard: 'hsl(220, 16%, 12%)',     
+              darkText: 'hsl(0, 0%, 90%)',      
+              darkSubtleText: 'hsl(0, 0%, 60%)',   
+              darkBorder: 'hsl(220, 15%, 22%)',  
+              darkInputBg: 'hsl(220, 15%, 15%)',  
+
+              interactiveGradientFrom: 'hsl(212, 80%, 60%)',
+              interactiveGradientTo: 'hsl(212, 70%, 50%)',
+              darkInteractiveGradientFrom: 'hsl(212, 75%, 55%)',
+              darkInteractiveGradientTo: 'hsl(212, 65%, 45%)',
+
+              focusRingLight: 'hsl(212, 75%, 65%)', // Primary with good contrast on light
+              focusRingDark: 'hsl(212, 75%, 70%)',  // Lighter primary for dark theme
+            },
+            boxShadow: { 
+              'subtle': '0 2px 4px rgba(0, 0, 0, 0.04)',
+              'card': '0 3px 6px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0,0,0,0.03)', // Slightly refined card shadow
+              'interactive': '0 4px 8px -2px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04)',
+              'interactive-hover': '0 6px 12px -3px rgba(0, 0, 0, 0.1), 0 3px 5px -2px rgba(0, 0, 0, 0.06)',
+            },
+            borderRadius: {
+              'xl': '0.75rem', 
+              '2xl': '1rem',  
+              '3xl': '1.5rem',
+            },
+            transitionProperty: {
+              'height': 'height',
+              'spacing': 'margin, padding',
+              'shadow': 'box-shadow',
+              'transform': 'transform',
+              'opacity': 'opacity',
+            },
+            transitionDuration:{
+                '100': '100ms',
+                '120': '120ms',
+                '250': '250ms',
+                '300': '300ms',
+            },
+            ringWidth: {
+              'DEFAULT': '2px',
+              '3': '3px',
+            },
+            ringOffsetWidth: {
+              'DEFAULT': '2px',
+              '3': '3px',
+            },
+            ringColor: theme => ({
+              ...theme('colors'),
+              DEFAULT: theme('colors.primary.DEFAULT', 'hsl(212, 75%, 58%)'),
+              light: theme('colors.focusRingLight'),
+              dark: theme('colors.focusRingDark'),
+            }),
+            keyframes: {
+              dropdownOpen: {
+                'from': { opacity: '0', transform: 'translateY(-8px) scaleY(0.95)' },
+                'to': { opacity: '1', transform: 'translateY(0) scaleY(1)' },
+              },
+              dropdownClose: {
+                'from': { opacity: '1', transform: 'translateY(0) scaleY(1)' },
+                'to': { opacity: '0', transform: 'translateY(-8px) scaleY(0.95)' },
+              },
+              popoverOpen: {
+                'from': { opacity: '0', transform: 'translateY(-5px) scale(0.95)' },
+                'to': { opacity: '1', transform: 'translateY(0) scale(1)' },
+              },
+              popoverClose: {
+                'from': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                'to': { opacity: '0', transform: 'translateY(-5px) scale(0.95)' },
+              },
+              fadeIn: {
+                'from': { opacity: '0' },
+                'to': { opacity: '1' },
+              },
+              fadeInUp: {
+                'from': { opacity: '0', transform: 'translateY(10px)' },
+                'to': { opacity: '1', transform: 'translateY(0)' },
+              },
+              slideFadeIn: { // For LanguageSelector transition
+                'from': { opacity: '0', transform: 'translateY(5px) scale(0.98)' },
+                'to': { opacity: '1', transform: 'translateY(0) scale(1)' },
+              },
+              slideFadeOut: { // For LanguageSelector transition
+                'from': { opacity: '1', transform: 'translateY(0) scale(1)' },
+                'to': { opacity: '0', transform: 'translateY(5px) scale(0.98)' },
+              },
+              slideInRight: {
+                'from': { transform: 'translateX(100%)' },
+                'to': { transform: 'translateX(0)' },
+              },
+              slideOutRight: {
+                'from': { transform: 'translateX(0)' },
+                'to': { transform: 'translateX(100%)' },
+              },
+            },
+            animation: {
+              dropdownOpen: 'dropdownOpen 0.12s ease-out forwards',
+              dropdownClose: 'dropdownClose 0.1s ease-in forwards',
+              popoverOpen: 'popoverOpen 0.1s ease-out forwards',
+              popoverClose: 'popoverClose 0.1s ease-in forwards',
+              fadeIn: 'fadeIn 0.3s ease-out forwards',
+              fadeInUp: 'fadeInUp 0.25s ease-out forwards',
+              slideFadeIn: 'slideFadeIn 0.2s ease-out forwards',
+              slideFadeOut: 'slideFadeOut 0.2s ease-in forwards',
+              slideInRight: 'slideInRight 0.3s ease-out forwards',
+              slideOutRight: 'slideOutRight 0.3s ease-in forwards',
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.4.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
