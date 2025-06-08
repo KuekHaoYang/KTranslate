@@ -1,4 +1,4 @@
-# KTranslate.
+# KTranslate
 
 KTranslate is a visually stunning and feature-rich translation application powered by the Google Gemini API. It offers a human-centric design with light and dark modes, aiming for an intuitive user experience with a warm "Solarium Vibe" theme.
 
