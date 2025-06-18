@@ -6,9 +6,9 @@ KTranslate is a visually stunning and feature-rich translation application power
 
 *   **AI-Powered Translation:** Leverages the advanced capabilities of Google's Gemini models for accurate and context-aware translations.
 *   **Multiple Translation Modes:**
-    *   **Highest Quality:** Prioritizes accuracy and nuance.
-    *   **Balanced:** Offers a good mix of quality and speed.
-    *   **Speedy:** Optimized for fast translations, ideal for quick lookups.
+    *   **Highest Quality:** (Uses `gemini-2.5-pro`) Prioritizes accuracy and nuance.
+    *   **Balanced:** (Uses `gemini-2.5-flash`) Offers a good mix of quality and speed.
+    *   **Speedy:** (Uses `gemini-2.5-flash-lite-preview-06-17`) Optimized for fast translations, ideal for quick lookups.
 *   **Flexible Translation Styles:**
     *   **Natural & Fluid:** Produces colloquial, idiomatic translations.
     *   **Standard & Literal:** Focuses on direct, precise, word-for-word accuracy.

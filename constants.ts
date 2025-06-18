@@ -1,34 +1,29 @@
 
 import { Language, TranslationMode, TranslationStyle } from './types';
 
-// The 'kingfall-ab-test' model is specified as the highest quality default.
-// If it has a known public API alias like a gemini-x.x-flash/pro variant, that could be used.
-// For now, we'll use the name as provided.
-export const DEFAULT_HIGH_QUALITY_MODEL_ID = 'gemini-2.5-pro-preview-06-05'; 
-// Fallback if kingfall-ab-test is not a recognized public model or for general use:
-// export const DEFAULT_HIGH_QUALITY_MODEL_ID = 'gemini-2.5-flash-preview-04-17';
+// The 'gemini-2.5-pro-preview-06-05' model is specified as the highest quality default.
+export const DEFAULT_HIGH_QUALITY_MODEL_ID = 'gemini-2.5-pro'; 
 
 
 export const TRANSLATION_MODES: TranslationMode[] = [
   {
     id: 'quality',
     name: 'Highest Quality',
-    modelId: DEFAULT_HIGH_QUALITY_MODEL_ID,
+    modelId: DEFAULT_HIGH_QUALITY_MODEL_ID, // Uses gemini-2.5-pro-preview-06-05
     description: 'Prioritizes the most accurate and nuanced translation. (Default)',
     // For pro models, thinkingConfig is not applicable.
-    // For flash models, omitting thinkingConfig enables thinking.
   },
   {
     id: 'balanced',
     name: 'Balanced',
-    modelId: 'gemini-2.5-flash-preview-05-20', // Same model as Speedy
+    modelId: 'gemini-2.5-flash', // Uses a flash model, thinking enabled by default
     description: 'A good balance between translation quality and speed.',
     // config is omitted, so thinking is enabled by default for this flash model.
   },
   {
     id: 'speedy',
     name: 'Speedy',
-    modelId: 'gemini-2.5-flash-preview-05-20',
+    modelId: 'gemini-2.5-flash-lite-preview-06-17', // Uses the new flash-lite model
     description: 'Optimized for speed. Good for quick translations.',
     config: { thinkingConfig: { thinkingBudget: 0 } }, // Explicitly disable thinking
   },
